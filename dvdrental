@@ -1,4 +1,100 @@
 --Dataset: dvdrental.tar
 --Source: https://drive.google.com/file/d/1oBxiJkST9-7IjOMY-8aMXEMbrL6XcX49/view
 --Provider: Jose Portillo, Pierian Data
---Queried With: pgAdmin 4 
+--Queried With: pgAdmin 4
+
+--Table: Column(s), Row Count
+  --actor: actor_id, first_name, last_name, last_update, 200
+  --address: address_id, address, address2, district, city_id, postal_code, phone, last_update, 603
+  --category: category_id, name, last_update, 16
+  --city: city_id, city, country_id, last_update, 600
+  --country: country_id, country, last_update, 109
+  --customer: customer_id, store_id, first_name, last_name, email, address_id, activebool, create_date,
+    last_update, active, 599
+  --film: film_id, title, description, release year, language_id, rental_duration, rental_rate,
+    replacement_cost, rating, last_update, special_features, fulltext, 1000
+  --film_actor: actor_id, film_id, last_update, 5462
+  --film_category: film_id, category_id, last_update, 1000
+  --inventory: inventory_id, film_id, store_id, last_update, 4581
+  --language: language_id, name, last_update, 6
+  --payment: payment_id, customer_id, staff_id, rental_id, amount, payment_date, 14596
+  --rental: rental_id, rental_date, inventory_id, customer_id, return_date, staff_id, last_update, 16044
+  --staff: staff_id, first_name, last_name, address_id, email, store_id, active, username, password,
+    last_update, picture, 2
+  --store: store_id, manager_staff_id, address_id, last_update, 2
+
+--EXAMPLE QUERIES
+
+/*Customer with highest number ID that name starts with 'C' and address ID is lower than 300*/
+SELECT first_name, last_name, address_id
+FROM customer
+WHERE first_name ILIKE 'C%'
+AND address_id < '300'
+ORDER BY address_id DESC;
+
+/*ID's for customers who have spent more than $50 with Staff Member #2*/
+SELECT staff_id, customer_id, SUM(amount)
+FROM payment
+WHERE staff_id = '2'
+GROUP BY staff_id, customer_id
+HAVING SUM(amount) > 50;
+
+/*ID's for customers with 40 or more total transactions*/
+SELECT customer_id, COUNT(*)
+FROM payment
+GROUP BY customer_id
+HAVING COUNT(*) >= 40;
+
+/*ID's for top five customers with largest spend*/
+SELECT customer_id, SUM(amount)
+FROM payment
+GROUP BY customer_id
+ORDER BY SUM(amount) DESC
+LIMIT 5;
+
+/*Average replacement cost per MPAA rating*/
+SELECT rating, ROUND(AVG(replacement_cost), 2)
+FROM film
+GROUP BY rating;
+
+/*Group payment amounts by date and order by total amounts*/
+SELECT DATE(payment_date), SUM(amount)
+FROM payment
+GROUP BY DATE(payment_date)
+ORDER BY SUM(amount) DESC;
+
+/*List films that end with the letter 'E'*/
+SELECT title FROM film
+WHERE title ILIKE '%E';
+
+/*List films that start with the letter 'C'*/
+SELECT title FROM film
+WHERE title ILIKE 'C%';
+
+/*How many films have the word 'Romance' in the title?*/
+SELECT COUNT(*) FROM film
+WHERE title LIKE '%Romance%';
+
+/*Number of films with an 'PG' rating and replacement cost between $10 and $12*/
+SELECT COUNT(*) FROM film
+WHERE rating = 'PG' AND replacement_cost BETWEEN 10 AND 12;
+
+/*How may unique districts are customers from?*/
+SELECT COUNT(DISTINCT(district))
+FROM address;
+
+/*Ten shortest films and their length in ascending order*/
+SELECT title, length FROM film
+ORDER BY length ASC
+LIMIT 10;
+
+/*Determine email address for 'Nancy Thomas'*/
+SELECT email FROM customer
+WHERE last_name = 'Thomas'
+AND first_name = 'Nancy';
+
+/*Conditional count from table using SELECT WHERE*/
+SELECT COUNT(*) FROM film
+WHERE rental_rate > 4 AND replacement cost >= 19.99;
+
+
