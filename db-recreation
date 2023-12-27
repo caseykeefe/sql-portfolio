@@ -1,1 +1,69 @@
+--Dataset: exercises.tar (renamed to 'db-recreation')
+--Source: https://drive.google.com/file/d/1wDqIK6zt5twWnCOx97ywipaiWR2d0OfT/view
+--Provider: Jose Portillo, Pierian Data
+--Queried With: pgAdmin 4
+
+--Table: Column(s), Row Count
+--Schema: cd
+  --bookings: bookid, facid, memid, starttime, slots, 4043
+  --facilities: facid, name, membercost, guestcost, initialoutlay, monthlymaintenance, 9
+  --members: category_id, name, last_update, 31
+
+--EXAMPLE QUERIES AND FUNCTIONS
+
+/*List of start times by member 'David Farrell'*/
+SELECT *
+FROM cd.bookings
+INNER JOIN cd.members ON
+cd.members.memid = cd.bookings.memid
+WHERE cd.members.firstname = 'David'
+AND cd.members.surname = 'Farrell';
+
+/*List of start times for tennis courts on September 21, 2012*/
+SELECT cd.bookings.starttime, cd.facilities.name
+FROM cd.facilities
+INNER JOIN cd.bookings ON
+cd.facilities.facid = cd.bookings.facid
+WHERE cd.facilities.name IN ('Tennis Court 1', 'Tennis Court 2')
+AND cd.bookings.starttime >= '2012-09-21'
+AND cd.bookings.starttime < '2012-09-22';
+
+/*List of facilities with more than 1000 slots booked*/
+SELECT facid, SUM(slots) AS total_slots
+FROM cd.bookings
+GROUP BY facid
+HAVING SUM(slots) > 1000
+ORDER BY facid;
+
+/*Total number of slots booked per facility in September 2012*/
+SELECT facid, SUM(slots) AS total_slots
+FROM cd.bookings
+WHERE starttime >= ‘2012-09-01’ AND starttime <= ‘2012-10-01’
+GROUP BY facid ORDER BY SUM(slots)
+
+/*Number of facilities with a guest fee is at least $10*/
+SELECT COUNT(guestcost) FROM cd.facilities
+WHERE guestcost >= 10;
+
+/*Sign-up date of most-recent new member*/
+SELECT MIN(joindate)
+FROM cd.members;
+
+/*Return info of members who joined after beginning of September 2012*/
+SELECT memid, surname, firstname, joindate FROM cd.members
+WHERE joindate > '2012-09-01'
+ORDER BY joindate DESC;
+
+/*List facilities with 'Tennis' in name*/
+SELECT * FROM cd.facilities
+WHERE name LIKE '%Tennis%';
+
+/*Facilities with member fee less than 2% of monthly maintenance cost*/
+SELECT facid, name, membercost, monthlymaintenance FROM cd.facilities
+WHERE membercost >0 AND membercost <= ((1/50.0) * monthlymaintenance);
+
+/*List of facilities that charge a fee to members*/
+SELECT name FROM cd.facilities
+WHERE membercost > 0;
+
 
