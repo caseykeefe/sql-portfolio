@@ -1,3 +1,6 @@
+
+Source Dataset: playlogs012723.csv
+
 /*Create table 'playlogs'*/
 CREATE TABLE playlogs (
   year INT NOT NULL,
@@ -13,3 +16,23 @@ CREATE TABLE playlogs (
   album VARCHAR(255),
   stream3 INT
 );
+
+/*Load data from playlogs012723.csv*/
+LOAD DATA LOCAL INFILE 'playlogs012723.csv'
+  INTO TABLE playlogs
+  FIELDS TERMINATED BY '|'
+  LINES TERMINATED BY '\n'
+
+--Data verification and cleaning--
+
+/*Select first 10 rows to confirm no missing data*/
+SELECT * FROM playlogs LIMIT 10;
+
+/*Delete rows with empty or missing artist field*/
+DELETE FROM playlogs WHERE ARTIST="";
+
+/*Delete rows with null artist fields*/
+DELETE FROM playlogs WHERE artist is NULL;
+
+--Queries for number of days each artist in playlist
+and total plays per artist--
