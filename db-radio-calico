@@ -1,0 +1,15 @@
+/*Create table 'playlogs'*/
+CREATE TABLE playlogs (
+  year INT NOT NULL,
+  month INT NOT NULL,
+  day INT NOT NULL,
+  hour INT NOT NULL,
+  minute INT NOT NULL,
+  second INT NOT NULL,
+  stream1 INT,
+  stream2 INT,
+  artist VARCHAR(255),
+  title VARCHAR(255),
+  album VARCHAR(255),
+  stream3 INT
+);
