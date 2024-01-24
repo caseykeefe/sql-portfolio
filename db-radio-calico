@@ -23,10 +23,29 @@ LOAD DATA LOCAL INFILE 'playlogs012723.csv'
   FIELDS TERMINATED BY '|'
   LINES TERMINATED BY '\n'
 
+Query OK, 12456 rows affected, 160 warnings (0.83 sec)
+Records: 12456  Deleted: 0  Skipped: 0  Warnings: 160
+
 --Data verification and cleaning--
 
 /*Select first 10 rows to confirm no missing data*/
 SELECT * FROM playlogs LIMIT 10;
+
++------+-------+-----+------+--------+--------+---------+---------+------------------------+-------------------------------------------+------------------------------------------------+---------+
+| year | month | day | hour | minute | second | stream1 | stream2 | artist                 | title                                     | album                                          | stream3 |
++------+-------+-----+------+--------+--------+---------+---------+------------------------+-------------------------------------------+------------------------------------------------+---------+
+| 2023 |     1 |   1 |    0 |      0 |     27 |       0 |       0 | Vance Joy              | Clarity                                   | In Our Own Sweet Time                          |       2 |
+| 2023 |     1 |   1 |    0 |      4 |      8 |       0 |       0 | The Proclaimers        | I'm Gonna Be (500 Miles)  (2011 Remaster) | Sunshine On Leith (2011 - Remaster)            |       2 |
+| 2023 |     1 |   1 |    0 |      7 |     38 |       1 |       0 | B.G. The Prince Of Rap | This Beat Is Hot                          | The Power of Rhythm                            |       2 |
+| 2023 |     1 |   1 |    0 |     11 |     32 |       1 |       0 | The Beths              | Expert In A Dying Field                   | Expert In A Dying Field                        |       2 |
+| 2023 |     1 |   1 |    0 |     15 |     37 |       1 |       0 | Everclear              | Santa Monica (Remastered 2004)            | The Best Of Everclear                          |       2 |
+| 2023 |     1 |   1 |    0 |     18 |     48 |       1 |       0 |                        |                                           |                                                |       3 |
+| 2023 |     1 |   1 |    0 |     19 |     10 |       1 |       0 | Arrested Development   | Mr. Wendal                                | 3 Years, 5 Months And 2 Days In The Life Of... |       3 |
+| 2023 |     1 |   1 |    0 |     23 |      4 |       0 |       0 | Big Audio Dynamite     | Rush (Single Version)                     | Planet Bad Greatest Hits                       |       3 |
+| 2023 |     1 |   1 |    0 |     26 |      6 |       1 |       0 |                        |                                           |                                                |       3 |
+| 2023 |     1 |   1 |    0 |     26 |     13 |       1 |       0 | Weezer                 | Back To The Shack                         | Everything Will Be Alright In The End          |       3 |
++------+-------+-----+------+--------+--------+---------+---------+------------------------+-------------------------------------------+------------------------------------------------+---------+
+10 rows in set (0.00 sec)
 
 /*Delete rows with empty or missing artist field*/
 DELETE FROM playlogs WHERE ARTIST="";
@@ -36,3 +55,79 @@ DELETE FROM playlogs WHERE artist is NULL;
 
 --Queries for number of days each artist in playlist
 and total plays per artist--
+
+/*Establish first day each artist appeared*/
+SELECT artist, MIN(day) AS firstPlayDay
+FROM playlogs
+GROUP BY artist LIMIT 10;
+
++------------------------+--------------+
+| artist                 | firstPlayDay |
++------------------------+--------------+
+| Vance Joy              |            1 |
+| The Proclaimers        |            1 |
+| B.G. The Prince Of Rap |            1 |
+| The Beths              |            1 |
+| Everclear              |            1 |
+| Arrested Development   |            1 |
+| Big Audio Dynamite     |            1 |
+| Weezer                 |            1 |
+| Bush                   |            1 |
+| Ghost                  |            1 |
++------------------------+--------------+
+10 rows in set (0.03 sec)
+
+/*Establish last day artist was played, store as @numDays*/
+SET @numDays := (SELECT MAX(day) from playlogs);
+
+/*Verify variable was set*/
+SELECT @numDays;
+
++----------+
+| @numDays |
++----------+
+|       27 |
++----------+
+1 row in set (0.00 sec)
+
+/*Create intermediate query, starting month at "1" and not "0"*/
+SELECT artist, @numDays - MIN(day) + 1 AS daysInPlaylist
+FROM playlogs
+GROUP BY artist LIMIT 10;
+
++------------------------+----------------+
+| artist                 | daysInPlaylist |
++------------------------+----------------+
+| Vance Joy              |             27 |
+| The Proclaimers        |             27 |
+| B.G. The Prince Of Rap |             27 |
+| The Beths              |             27 |
+| Everclear              |             27 |
+| Arrested Development   |             27 |
+| Big Audio Dynamite     |             27 |
+| Weezer                 |             27 |
+| Bush                   |             27 |
+| Ghost                  |             27 |
++------------------------+----------------+
+10 rows in set (0.02 sec)
+
+/*Roll-up total number of rows (days) and add totalPlays*/
+SELECT artist, @numDays - MIN(day) + 1 AS 
+daysInPlaylist, COUNT(artist) AS totalPlays FROM playlogs
+GROUP BY artist LIMIT 10;
+
++------------------------+----------------+------------+
+| artist                 | daysInPlaylist | totalPlays |
++------------------------+----------------+------------+
+| Vance Joy              |             27 |         24 |
+| The Proclaimers        |             27 |          7 |
+| B.G. The Prince Of Rap |             27 |          8 |
+| The Beths              |             27 |          7 |
+| Everclear              |             27 |          9 |
+| Arrested Development   |             27 |          9 |
+| Big Audio Dynamite     |             27 |          8 |
+| Weezer                 |             27 |         43 |
+| Bush                   |             27 |         27 |
+| Ghost                  |             27 |          4 |
++------------------------+----------------+------------+
+10 rows in set (0.02 sec)
