@@ -133,3 +133,12 @@ GROUP BY artist LIMIT 10;
 10 rows in set (0.02 sec)
 
 --DETERMINE MOST AND LEAST PLAYED ARTISTS (20)--
+
+/*Determine average daily plays per artist sorted ASC*/
+SELECT artist, totalPlays/daysInPlaylist AS avgDailyPlays FROM (
+SELECT artist, @numDays - MIN(day) + 1 AS daysInPlaylist, COUNT(artist) AS totalPlays
+FROM playlogs
+GROUP BY artist
+) AS t
+ORDER BY avgDailyPlays
+LIMIT 20;
