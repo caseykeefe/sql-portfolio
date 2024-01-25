@@ -26,7 +26,7 @@ LOAD DATA LOCAL INFILE 'playlogs012723.csv'
 Query OK, 12456 rows affected, 160 warnings (0.83 sec)
 Records: 12456  Deleted: 0  Skipped: 0  Warnings: 160
 
---Data verification and cleaning--
+--DATA CONFIRMATION AND CLEANING--
 
 /*Select first 10 rows to confirm no missing data*/
 SELECT * FROM playlogs LIMIT 10;
@@ -53,8 +53,8 @@ DELETE FROM playlogs WHERE ARTIST="";
 /*Delete rows with null artist fields*/
 DELETE FROM playlogs WHERE artist is NULL;
 
---Queries for number of days each artist in playlist
-and total plays per artist--
+--QUERIES FOR NUMBER OF DAYS EACH ARTIST IN PLAYLIST
+AND TOTAL PLAYS PER ARTIST--
 
 /*Establish first day each artist appeared*/
 SELECT artist, MIN(day) AS firstPlayDay
@@ -90,7 +90,7 @@ SELECT @numDays;
 +----------+
 1 row in set (0.00 sec)
 
-/*Create intermediate query, starting month at "1" and not "0"*/
+/*Start month at "1" and not "0"*/
 SELECT artist, @numDays - MIN(day) + 1 AS daysInPlaylist
 FROM playlogs
 GROUP BY artist LIMIT 10;
@@ -131,3 +131,5 @@ GROUP BY artist LIMIT 10;
 | Ghost                  |             27 |          4 |
 +------------------------+----------------+------------+
 10 rows in set (0.02 sec)
+
+--DETERMINE MOST AND LEAST PLAYED ARTISTS (20)--
