@@ -1,5 +1,5 @@
-
-Source Dataset: playlogs012723.csv
+Dataset: playlogs012723.csv
+Provider: Frank Kane, Sundog Education
 
 /*Create table 'playlogs'*/
 CREATE TABLE playlogs (
@@ -134,7 +134,7 @@ GROUP BY artist LIMIT 10;
 
 --DETERMINE MOST AND LEAST PLAYED ARTISTS (20)--
 
-/*Determine average daily plays per artist sorted ASC*/
+/*Determine lowest average daily plays per artist (sorted ASC)*/
 SELECT artist, totalPlays/daysInPlaylist AS avgDailyPlays FROM (
 SELECT artist, @numDays - MIN(day) + 1 AS daysInPlaylist, COUNT(artist) AS totalPlays
 FROM playlogs
@@ -142,3 +142,64 @@ GROUP BY artist
 ) AS t
 ORDER BY avgDailyPlays
 LIMIT 20;
+
++----------------------------------+---------------+
+| artist                           | avgDailyPlays |
++----------------------------------+---------------+
+| The Brian Setzer Orchestra       |        0.0435 |
+| PORNO FOR PYROS                  |        0.0800 |
+| The Squirrel Nut Zippers         |        0.0870 |
+| Kermit                           |        0.1111 |
+| Mahna Mahna and the Two Snowths  |        0.1154 |
+| Michael Giacchino                |        0.1200 |
+| Mike Posner                      |        0.1250 |
+| Baha Men                         |        0.1250 |
+| Rema & Selena Gomez              |        0.1250 |
+| DJ Topgun f./Tatiana Hazel       |        0.1304 |
+| Madison Beer                     |        0.1364 |
+| Stray Cats                       |        0.1429 |
+| Ghost                            |        0.1481 |
+| Two Door Cinema Club             |        0.1481 |
+| Joywave                          |        0.1481 |
+| Andrew McMahon In The Wilderness |        0.1481 |
+| TALK                             |        0.1538 |
+| BoyWithUke f./Oliver Tree        |        0.1538 |
+| Zedd, Maren Morris & BEAUZ       |        0.1600 |
+| Pheelz & Davido                  |        0.1667 |
++----------------------------------+---------------+
+20 rows in set (0.06 sec)
+
+/*Determine highest average daily plays per artist (sorted DESC)*/
+SELECT artist, totalPlays/daysInPlaylist AS avgDailyPlays FROM (
+SELECT artist, @numDays - MIN(day) + 1 AS daysInPlaylist, COUNT(artist) AS totalPlays
+FROM playlogs
+GROUP BY artist
+) AS t
+ORDER BY avgDailyPlays
+LIMIT 20;
+
++---------------------+---------------+
+| artist              | avgDailyPlays |
++---------------------+---------------+
+| Nirvana             |        2.5185 |
+| Pearl Jam           |        2.5000 |
+| Prince              |        2.5000 |
+| AC/DC               |        2.3704 |
+| The Beatles         |        2.2963 |
+| U2                  |        2.2222 |
+| Led Zeppelin        |        2.1852 |
+| Madonna             |        2.0741 |
+| Janet Jackson       |        2.0741 |
+| Nine Inch Nails     |        1.9630 |
+| Stone Temple Pilots |        1.9630 |
+| K. Flay             |        1.8148 |
+| The Cars            |        1.7778 |
+| Public Enemy        |        1.7778 |
+| Bishop Briggs       |        1.6667 |
+| Beck                |        1.6538 |
+| Weezer              |        1.5926 |
+| David Bowie         |        1.5926 |
+| Green Day           |        1.4815 |
+| Johnny Cash         |        1.4815 |
++---------------------+---------------+
+20 rows in set (0.08 sec)
