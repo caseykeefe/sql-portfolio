@@ -27,6 +27,8 @@ LOAD DATA LOCAL INFILE 'playlogs012723.csv'
 Query OK, 12456 rows affected, 160 warnings (0.83 sec)
 Records: 12456  Deleted: 0  Skipped: 0  Warnings: 160
 
+#ANALYZE MOST / LEAST PLAYED ARTISTS
+
 --DATA CONFIRMATION AND CLEANING--
 
 /*Select first 10 rows to confirm no missing data*/
@@ -204,3 +206,30 @@ LIMIT 20;
 | Johnny Cash         |        1.4815 |
 +---------------------+---------------+
 20 rows in set (0.08 sec)
+
+#ANALYZE LISTENING PATTERNS
+
+--CREATE TOTAL LISTENERS PER PLAY VIEW, TRIM DATA--
+
+/*Create listeners view from all three streams*/
+CREATE VIEW listeners AS SELECT year, month, day, hour,
+stream1 + stream2 + stream3 as listeners FROM playlogs;
+
+/*Verify view*/
+SELECT * FROM listeners LIMIT 10;
+
++------+-------+-----+------+-----------+
+| year | month | day | hour | listeners |
++------+-------+-----+------+-----------+
+| 2023 |     1 |   1 |    0 |         2 |
+| 2023 |     1 |   1 |    0 |         2 |
+| 2023 |     1 |   1 |    0 |         3 |
+| 2023 |     1 |   1 |    0 |         3 |
+| 2023 |     1 |   1 |    0 |         3 |
+| 2023 |     1 |   1 |    0 |         4 |
+| 2023 |     1 |   1 |    0 |         3 |
+| 2023 |     1 |   1 |    0 |         4 |
+| 2023 |     1 |   1 |    0 |         4 |
+| 2023 |     1 |   1 |    0 |         3 |
++------+-------+-----+------+-----------+
+10 rows in set (0.00 sec)
