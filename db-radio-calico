@@ -213,7 +213,8 @@ LIMIT 20;
 
 /*Create listeners view from all three streams*/
 CREATE VIEW listeners AS SELECT year, month, day, hour,
-stream1 + stream2 + stream3 as listeners FROM playlogs;
+stream1 + stream2 + stream3 as listeners 
+FROM playlogs;
 
 /*Verify view*/
 SELECT * FROM listeners LIMIT 10;
@@ -232,4 +233,90 @@ SELECT * FROM listeners LIMIT 10;
 | 2023 |     1 |   1 |    0 |         4 |
 | 2023 |     1 |   1 |    0 |         3 |
 +------+-------+-----+------+-----------+
+10 rows in set (0.00 sec)
+
+--DETERMINE HOUR WITH FEWEST LISTENERS--
+
+/*Group data by hour and total listeners*/
+SELECT hour, SUM(listeners) AS totalListeners
+FROM listeners
+GROUP BY hour ORDER BY totalListeners;
+
++------+----------------+
+| hour | totalListeners |
++------+----------------+
+|    3 |           1531 |
+|    6 |           1547 |
+|    4 |           1562 |
+|    2 |           1580 |
+|    1 |           1632 |
+|    7 |           1639 |
+|    5 |           1652 |
+|    0 |           1731 |
+|   23 |           1887 |
+|    8 |           2019 |
+|   22 |           2156 |
+|   21 |           2254 |
+|   20 |           2286 |
+|   19 |           2292 |
+|    9 |           2422 |
+|   18 |           2494 |
+|   10 |           2836 |
+|   16 |           2898 |
+|   15 |           3040 |
+|   17 |           3066 |
+|   11 |           3147 |
+|   14 |           3232 |
+|   12 |           3272 |
+|   13 |           3284 |
++------+----------------+
+24 rows in set (0.02 sec)
+
+--CREATE PLAYS AND DAY OF WEEK VIEW--
+
+/*Create listenersWeekdays from listeners view*/
+CREATE VIEW listenersByDate AS SELECT STR_TO_DATE(CONCAT(year, '-',
+month, '-', day), '%Y-%m-%d') AS date, listeners
+FROM listeners;
+
+/*Verify view*/
+SELECT * FROM listenersByDate LIMIT 10;
+
++------------+-----------+
+| date       | listeners |
++------------+-----------+
+| 2023-01-01 |         2 |
+| 2023-01-01 |         2 |
+| 2023-01-01 |         3 |
+| 2023-01-01 |         3 |
+| 2023-01-01 |         3 |
+| 2023-01-01 |         4 |
+| 2023-01-01 |         3 |
+| 2023-01-01 |         4 |
+| 2023-01-01 |         4 |
+| 2023-01-01 |         3 |
++------------+-----------+
+10 rows in set (0.00 sec)
+
+--CREATE WEEKDAY LISTENERS VIEW--
+/*Create listenersWeekday from listenersWeekdays view*/
+CREATE VIEW listenersWeekday AS SELECT DAYOFWEEK(date) AS weekday,
+date, listeners
+FROM listenersByDate;
+
+/*Verify view*/
++---------+------------+-----------+
+| weekday | date       | listeners |
++---------+------------+-----------+
+|       1 | 2023-01-01 |         2 |
+|       1 | 2023-01-01 |         2 |
+|       1 | 2023-01-01 |         3 |
+|       1 | 2023-01-01 |         3 |
+|       1 | 2023-01-01 |         3 |
+|       1 | 2023-01-01 |         4 |
+|       1 | 2023-01-01 |         3 |
+|       1 | 2023-01-01 |         4 |
+|       1 | 2023-01-01 |         4 |
+|       1 | 2023-01-01 |         3 |
++---------+------------+-----------+
 10 rows in set (0.00 sec)
