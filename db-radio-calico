@@ -207,6 +207,9 @@ LIMIT 20;
 +---------------------+---------------+
 20 rows in set (0.08 sec)
 
+--CONCLUSION: Rock is king with Nirvana, Pearl Jam, Prince, AC/DC,
+and The Beatles rounding-out our top 5 most-played artists!--
+
 #ANALYZE LISTENING PATTERNS
 
 --CREATE TOTAL LISTENERS PER PLAY VIEW, TRIM DATA--
@@ -299,12 +302,16 @@ SELECT * FROM listenersByDate LIMIT 10;
 10 rows in set (0.00 sec)
 
 --CREATE WEEKDAY LISTENERS VIEW--
-/*Create listenersWeekday from listenersWeekdays view*/
-CREATE VIEW listenersWeekday AS SELECT DAYOFWEEK(date) AS weekday,
+
+/*Create listenersWeekdays from listeners view*/
+CREATE VIEW listenersWeekdays AS SELECT DAYOFWEEK(date) AS weekday,
 date, listeners
 FROM listenersByDate;
 
 /*Verify view*/
+SELECT * FROM listenersWeekdays
+LIMIT 10;
+
 +---------+------------+-----------+
 | weekday | date       | listeners |
 +---------+------------+-----------+
@@ -320,3 +327,52 @@ FROM listenersByDate;
 |       1 | 2023-01-01 |         3 |
 +---------+------------+-----------+
 10 rows in set (0.00 sec)
+
+--DETERMINE LISTENERS PER DAY--
+
+/*Create listenersByDay view to see SUM listeners per day*/
+CREATE VIEW listenersByDay AS SELECT SUM(listeners) AS totalListeners,
+weekday, date
+FROM listenersWeekdays
+GROUP BY date;
+
+/*Verify view*/
+SELECT * FROM listenersByDay
+LIMIT 10;
++----------------+---------+------------+
+| totalListeners | weekday | date       |
++----------------+---------+------------+
+|           1433 |       1 | 2023-01-01 |
+|           2390 |       3 | 2023-01-10 |
+|           2200 |       4 | 2023-01-11 |
+|           2429 |       5 | 2023-01-12 |
+|           2933 |       6 | 2023-01-13 |
+|           2281 |       7 | 2023-01-14 |
+|           1949 |       1 | 2023-01-15 |
+|           2252 |       2 | 2023-01-16 |
+|           2722 |       3 | 2023-01-17 |
+|           2673 |       4 | 2023-01-18 |
++----------------+---------+------------+
+10 rows in set (0.04 sec)
+
+/*Determine AVG listeners for each day of week*/
+SELECT SUM(totalListeners)/COUNT(totalListeners) AS averageListeners, weekday
+FROM listenersByDay
+GROUP BY weekday
+ORDER BY averageListeners;
+
++------------------+---------+
+| averageListeners | weekday |
++------------------+---------+
+|        1691.5000 |       1 |
+|        2029.2500 |       5 |
+|        2052.0000 |       4 |
+|        2091.6667 |       7 |
+|        2146.7500 |       2 |
+|        2147.5000 |       3 |
+|        2229.0000 |       6 |
++------------------+---------+
+7 rows in set (0.10 sec)
+
+--CONCLUSION: Saturday (weekday 6) has highest average listeners, in contrast to
+Sunday (weekday 1) having our lowest.--
